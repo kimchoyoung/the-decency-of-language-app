@@ -1,8 +1,10 @@
-const mysql = require('mysql');
+//
+// const mysql = require('mysql');
 const express= require('express'),http  = require('http');
 
 const app=express();
 
+/*
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -12,7 +14,6 @@ const connection = mysql.createConnection({
 });
 
 connection.connect();
-
 
 app.use((req,res,next)=>{
     getdata='select * from user_info';
@@ -26,6 +27,15 @@ app.use((req,res,next)=>{
         res.end(dictionary);
     });
 });
+*/
+
+
+
+app.use((req,res,next)=>{
+    console.log(req);
+    res.send("connected");
+});
+
 
 
 //connection.end();
