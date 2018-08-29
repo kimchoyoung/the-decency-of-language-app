@@ -32,8 +32,8 @@ app.use((req,res,next)=>{
 
 
 app.use((req,res,next)=>{
-    console.log(req);
-    res.send("connected");
+    console.log(req.query);
+    res.end("connected");
 });
 
 
