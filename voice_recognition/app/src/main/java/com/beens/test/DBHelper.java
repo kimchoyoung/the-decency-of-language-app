@@ -1,4 +1,4 @@
-package org.androidtown.sqlite;
+package com.beens;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteCursor;
@@ -21,6 +21,22 @@ public class DBHelper extends SQLiteOpenHelper{
                 "word text primary key;";
         db.execSQL(sql); //for creating private dictionary
 
+        /*
+        유저의 욕설 단어와 시간을 기록, 시간은 기본으로 현재시각으로 저장
+         */
+        sql = "create table if not exists user_rec(" +
+                "word text primary key,"
+        +   "time timestamp default current_timestamp);";
+        db.execSQL(sql); //for creating private dictionary
+
+        /*
+        유저정보를 기록, 이름 아이디 비밀번호
+         */
+        sql = "create table if not exists user_info(" +
+                "name text,"
+        +   "id text NOT NULL PRIMARY KEY,"
+        +   "pw text);";
+        db.execSQL(sql); //for creating private dictionary
     }
 
     @Override
