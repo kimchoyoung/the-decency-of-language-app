@@ -77,6 +77,19 @@ app.use((req,res,next)=>{
         res.end(dictionary);
     });
 });
+<<<<<<< HEAD
+*/
+
+
+
+app.use((req,res,next)=>{
+    console.log(req.query);
+    res.send("connected");
+});
+
+
+=======
+>>>>>>> a93ff7543edbc37174e9d17a2c667f507276b659
 
 */
 //connection.end();
