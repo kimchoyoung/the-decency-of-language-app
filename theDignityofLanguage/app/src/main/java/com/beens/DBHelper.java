@@ -36,23 +36,14 @@ public class DBHelper extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase db) {
         this.db = db;
         // Set user dictionary
-        String sql = "create table if not exists user_dic("
-                + " word varchar(255) PRIMARY KEY );";
-
-        db.execSQL(sql);
+        db.execSQL(Queries.getQueryCreateUserDicTable(userID));
         // Set user Record
-        sql = "create table if not exists user_rec("
-                + " word varchar(255), "
-                + " time datetime default (datetime('now', 'localtime'))"
-                + " );";
-        db.execSQL(sql);
+        db.execSQL(Queries.getQueryCreateUserRecTable(userID));
         // Set Alarm List
-        sql = "create table if not exists alarm_list("
-                + " time_from varchar(255) PRIMARY KEY, "
-                + " time_to varchar(255));";
-        db.execSQL(sql);
+        db.execSQL(Queries.getUserAlarmListTableName(userID));
+
         // Set dictionary
-        sql = "create table if not exists dictionary("
+        String sql = "create table if not exists dictionary("
                 + " word varchar(255) PRIMARY KEY );";
 
         db.execSQL(sql);

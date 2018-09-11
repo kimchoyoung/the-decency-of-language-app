@@ -123,19 +123,19 @@ public class TestService extends Service {
                 for(int i=0; i<3 && word.length() > 0; ++i) {
 //                    cursor1 = db.query("user_dic", null, null, null, null, null, null, null);
 //                    cursor2 = db.query("dictionary", null, null, null, null, null, null, null);
-                    cursor1 = db.query("user_dic", null, "word=?", new String[] {word}, null, null, null, null);
+                    cursor1 = db.query(Queries.getUserRecTableName(userID), null, "word=?", new String[] {word}, null, null, null, null);
                     cursor2 = db.query("dictionary", null, "word=?", new String[] {word}, null, null, null, null);
                     if(cursor1.moveToFirst()) {
                         ContentValues record = new ContentValues();
                         record.put("word", cursor1.getString(0));
-                        db.insert("user_rec", null, record);
+                        db.insert(Queries.getUserRecTableName(userID), null, record);
                         MainActivity.viewPager.setAdapter(MainActivity.viewPagerAdapter);
                         makeAlarm();
                         break;
                     }else if(cursor2.moveToFirst()) {
                         ContentValues record = new ContentValues();
                         record.put("word", cursor2.getString(0));
-                        db.insert("user_rec", null, record);
+                        db.insert(Queries.getUserRecTableName(userID), null, record);
                         makeAlarm();
                         break;
                     }else {
