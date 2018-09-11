@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_1st"
+            android:title="시간 설정" />
+        <item
+            android:id="@+id/nav_2nd"
+            android:title="알람 설정"/>
+        <item
+            android:id="@+id/nav_3rd"
+            android:title="계정 정보" />
+        <item
+            android:id="@+id/nav_4th"
+            android:title="단어 설정"/>
+    </group>
+</menu>
