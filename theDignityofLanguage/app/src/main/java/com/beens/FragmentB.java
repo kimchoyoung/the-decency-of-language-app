@@ -40,7 +40,7 @@ public class FragmentB extends Fragment {
 
     private void setLineData() {
 
-        Cursor c = MainActivity.sqLiteDatabase.query("user_rec", new String[]{"word", "count(time)"}, null, null, "word", null, "count(time)", null);
+        Cursor c = MainActivity.sqLiteDatabase.query(Queries.getUserRecTableName(userID), new String[]{"word", "count(time)"}, null, null, "word", null, "count(time)", null);
         List<Entry> entries = new ArrayList<>();
 
         if (c.moveToFirst()) {

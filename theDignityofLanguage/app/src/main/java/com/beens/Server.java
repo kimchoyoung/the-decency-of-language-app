@@ -78,15 +78,5 @@ public class Server {
     }
     public boolean getEach_response() {
         return each_response.equals("True");
-    }public String getQueryMakeUserRecTable(String userID) {
-        String myQuery = "CREATE TABLE IF NOT EXISTS " + userID + "user_rec( word varchar(255), time timestamp default current_timestamp );";
-        return myQuery;
-    }
-
-    public String getQueryInsertWord(String table_name, String word) {
-        // INSERT INTO dictionary (word) SELECT * FROM (SELECT '해삼') AS tmp WHERE NOT EXISTS ( SELECT word FROM dictionary WHERE word = '해삼') LIMIT 1;
-        String myQuery = "INSERT INTO " + table_name + " (word) SELECT * FROM (SELECT '" + word + "') AS tmp"
-                + " WHERE NOT EXISTS ( SELECT word FROM " + table_name + " WHERE word = '" + word + "') LIMIT 1;";
-        return myQuery;
     }
 }

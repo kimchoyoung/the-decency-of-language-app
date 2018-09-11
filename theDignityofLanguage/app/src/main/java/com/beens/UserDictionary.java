@@ -52,7 +52,7 @@ public class UserDictionary extends AppCompatActivity {
                     listView.clearChoices();                 // 선택 해제
                 }else if(word != "") {
                     editText.setText("");
-                    db.delete("user_dic", "word=?", new String[] {word});
+                    db.delete(Queries.getUserDicTableName(userID), "word=?", new String[] {word});
                     word_list.remove(word);
                 }
                 myadapter.notifyDataSetChanged();
@@ -69,7 +69,7 @@ public class UserDictionary extends AppCompatActivity {
                 editText.setText("");
                 ContentValues value = new ContentValues();
                 value.put("word", newWord);
-                db.insert("user_dic", null, value);
+                db.insert(Queries.getUserDicTableName(userID), null, value);
                 word_list.add(newWord);
                 myadapter.notifyDataSetChanged();
             }
@@ -77,7 +77,7 @@ public class UserDictionary extends AppCompatActivity {
     }
     private void set_list() {
         TextView title = findViewById(R.id.userdic_title);
-        cursor = db.query("user_dic", null, null, null, null, null, null, null);
+        cursor = db.query(Queries.getUserDicTableName(userID), null, null, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             title.setText("등록된 단어");
             do {
