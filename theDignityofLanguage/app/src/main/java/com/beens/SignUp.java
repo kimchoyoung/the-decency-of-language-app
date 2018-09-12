@@ -88,7 +88,7 @@ public class SignUp extends AppCompatActivity {
     public void send_toServer(final int mode, String query){
         long now = System.currentTimeMillis();
         Date date = new Date(now);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd, hh:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         String getTime = sdf.format(date);
 
         StringRequest request = new StringRequest(Request.Method.GET, url+ query+"&time="+getTime ,

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="the-decency-of-language-app">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/theDignityofLanguage.zip!/" />
+      <root url="jar://$PROJECT_DIR$/TEST.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

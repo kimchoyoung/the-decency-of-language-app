@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     public static SQLiteDatabase sqLiteDatabase;
     private Queries query;
     private final String url = Server.url;
+    private checkVersion checkVersion;
 
     public static ViewPager viewPager;
     public static ViewPagerAdapter viewPagerAdapter;
@@ -179,7 +180,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         try {
-                            setSQLite(response);
+                            if(checkVersion.send_toServer(getBaseContext()))
+                                setSQLite(response);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
