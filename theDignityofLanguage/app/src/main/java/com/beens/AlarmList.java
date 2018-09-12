@@ -60,7 +60,7 @@ public class AlarmList extends AppCompatActivity {
                     String timeline = time_list.get(pos);
                     timeline = timeline.split(" ~ ")[0];
                     time_list.remove(pos);                       // items 리스트에서 해당 위치의 요소 제거
-                    db.delete(Queries.getUserAlarmListTableName(userID), "time_from=?", new String[] {timeline});
+                    db.delete("alarm_list", "time_from=?", new String[] {timeline});
                     listView.clearChoices();                 // 선택 해제
                 }
                 myadapter.notifyDataSetChanged();
@@ -69,7 +69,7 @@ public class AlarmList extends AppCompatActivity {
     }
     private void set_list() {
         TextView title = findViewById(R.id.userdic_title);
-        cursor = db.query(Queries.getUserAlarmListTableName(userID), null, null, null, null, null, null, null);
+        cursor = db.query("alarm_list", null, null, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             do {
                 String timeline = cursor.getString(0) ;

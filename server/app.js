@@ -90,17 +90,25 @@ app.use('/id_check',(req,res,next)=>{
     });
 });
 
-app.use('/update',(req,res,next)=>{
- //   query=`select * from dictionary`
-    query=`select * from dictionary`
-    connection.query(query, (err,rows,fields)=>{
-        if(err) throw err;
+var DBversion='3'
 
-        let dictionary=JSON.stringify(rows);
-        res.send(dictionary);
-    })
+app.use('/version_check',(req,res,next)=>{
+    let version = req.query.version
+    console.log('version == ' + DBversion);
+    res.send(DBversion)
 })
 
+app.use('/update',(req,res,next)=>{
+    console.log('update');
+    
+    query =`select * from dictionary;`
+        connection.query(query, (err, rows, fields)=>{
+            // console.log(rows)
+            words=JSON.stringify(rows)
+            res.send(words)
+            // console.log(words)
+        })
+})
 
 /*
 app.use((req,res,next)=>{

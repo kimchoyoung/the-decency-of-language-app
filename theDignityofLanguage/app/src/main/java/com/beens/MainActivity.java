@@ -1,6 +1,7 @@
 package com.beens;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,7 +25,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +38,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_LOGIN = 1000;
     public static final int REQUEST_CODE_ALARMLIST = 2000;
     public static final int REQUEST_CODE_ALARMSTYLE = 3000;
+    public static final int REQUEST_DB_VERSION = 100;
+    public static final int REQUEST_DB_UPDATE = 200;
+
     private int requestCode = 0;
     private int resultCode = 0;
 
@@ -57,11 +65,13 @@ public class MainActivity extends AppCompatActivity {
     public static SQLiteDatabase sqLiteDatabase;
     private Queries query;
     private final String url = Server.url;
-    private checkVersion checkVersion;
 
     public static ViewPager viewPager;
     public static ViewPagerAdapter viewPagerAdapter;
+    public static Spinner spinner;
+    private TextView nav_head_useremail;
 
+    @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,15 +81,13 @@ public class MainActivity extends AppCompatActivity {
         helper = new DBHelper(MainActivity.this, "lang.sqLiteDatabase", null, 1);
         sqLiteDatabase = helper.getWritableDatabase();
         helper.onCreate(sqLiteDatabase);
-//        if(!myPreferences.getBoolean("DB_setting",false)) {
-            String query = "update";
-            send_toServer(query);
-//        }
 
         /** Set Permission **/
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO},5);
             Toast.makeText(this,"순순히 권한을 넘기지 않으면, 음성 인식 기능을 사용할 수 없다.", Toast.LENGTH_LONG).show();
+            send_toServer(REQUEST_DB_VERSION, "version_check");
+            Log.d("DB_SERVER", "최초: 서버로 버전확인 커리를 보냅니다.");
         }
         editor.putString("user_email", null);
 
@@ -95,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         imgshownav.setOnClickListener(onClickListener);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerlayout);
-        //actionBarDrawerToggle = setUpActionBarToggle();
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.drawable.ic_menu, R.drawable.ic_menu);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
 
         navigationView = (NavigationView) findViewById(R.id.navigationView);
@@ -125,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void setUpDrawerContent(NavigationView navigationView) {
+        nav_head_useremail = navigationView.getHeaderView(0).findViewById(R.id.nav_head_useremail);
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -138,11 +148,14 @@ public class MainActivity extends AppCompatActivity {
                         startActivityForResult(intent_alarmstyle, REQUEST_CODE_ALARMSTYLE);
                         break;
                     case R.id.nav_3rd:
-                        Toast.makeText(MainActivity.this,"3rd nav",Toast.LENGTH_SHORT).show();
-                        break;
-                    case R.id.nav_4th:
                         Intent intent = new Intent(MainActivity.this,UserDictionary.class);
                         startActivity(intent);
+                        break;
+                    case R.id.nav_4th:
+                        Intent intent2 = new Intent(getApplicationContext(), SplashActivity.class);
+                        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent2);
+                        break;
                 }
                 return false;
             }
@@ -156,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
         this.resultCode = resultCode;
         /** Result of Setting **/
         if(requestCode == REQUEST_CODE_LOGIN) {
+            Log.d("SETTING_ERROR", "내용" + intent.getBooleanExtra("setting_state", true));
             if (intent.getBooleanExtra("setting_state", true) == false) {
                 Intent intent_setTime = new Intent(getApplicationContext(), SetTime.class);
                 startActivityForResult(intent_setTime, REQUEST_CODE_ALARMLIST);
@@ -163,15 +177,20 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getBaseContext(), "User setting is done", Toast.LENGTH_LONG).show();
             editor.putBoolean("setting", true);
             editor.commit();
-            String userinfo = intent.getStringExtra("user_email").toString() + "\n" + intent.getStringExtra("user_pwd").toString();
-            ((TextView) findViewById(R.id.user_info)).setText(userinfo);
 
-            viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
             viewPager = (ViewPager) findViewById(R.id.ViewPager);
-            viewPager.setAdapter(viewPagerAdapter);
+            spinner = (Spinner) findViewById(R.id.spinner);
+            viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+
+            /** Check the DB version **/
+            send_toServer(REQUEST_DB_VERSION, "version_check");
+            Log.d("DB_SERVER", "서버로 버전확인 커리를 보냅니다.");
+            setspinner();
         }
+        String userinfo = intent.getStringExtra("user_email");
+        nav_head_useremail.setText(userinfo);
     }
-    public void send_toServer(String query){
+    public void send_toServer(final int mode, String query){
         long now = System.currentTimeMillis();
         Date date = new Date(now);
         Log.i("[url]",url);
@@ -180,8 +199,17 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         try {
-                            if(checkVersion.send_toServer(getBaseContext()))
+                            if(mode == REQUEST_DB_VERSION) {
+                                Log.d("DB_SERVER", "데이터베이스 버전을 확인합니다. : " + response);
+                                if(!response.equals(myPreferences.getString("DB_version","0"))){
+                                    editor.putString("DB_version", response);
+                                    send_toServer(REQUEST_DB_UPDATE, "update");
+                                }
+                            }
+                            else if(mode == REQUEST_DB_UPDATE) {
+                                Log.d("DB_SERVER", "데이터베이스를 업데이트 합니다.");
                                 setSQLite(response);
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -215,5 +243,25 @@ public class MainActivity extends AppCompatActivity {
             sqLiteDatabase.insertWithOnConflict("dictionary", null, value, SQLiteDatabase.CONFLICT_IGNORE);
             editor.putBoolean("DB_setting", true);
         }
+    }
+    public void setspinner() {
+        ArrayList<String> spinnerlist;
+        spinnerlist = new ArrayList<String>();
+
+        spinnerlist.add("일주");
+        spinnerlist.add("한달");
+        spinnerlist.add("석달");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.support_simple_spinner_dropdown_item,spinnerlist);
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                viewPager.setAdapter(viewPagerAdapter);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
     }
 }

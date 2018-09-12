@@ -24,11 +24,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="450dp"
                 android:id="@+id/ViewPager"/>
-            <TextView
-                android:id="@+id/user_info"
-                android:layout_width="wrap_content"
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hello World!" />
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/ViewPager" />
         </RelativeLayout>
     </RelativeLayout>
     <android.support.design.widget.NavigationView
@@ -37,5 +38,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="#ffffff"
-        app:menu="@menu/menu"/>
+        app:menu="@menu/menu"
+        app:headerLayout="@layout/nav_header"/>
 </android.support.v4.widget.DrawerLayout>

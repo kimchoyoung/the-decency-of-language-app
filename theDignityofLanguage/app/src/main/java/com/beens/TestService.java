@@ -1,11 +1,15 @@
 package com.beens;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.BitmapFactory;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -32,6 +36,8 @@ public class TestService extends Service {
     public static boolean sound_isChecked;
     public static boolean vibrate_isChecked;
     public static boolean notific_isChecked;
+    private NotificationManager notificationManager;
+    private Intent noti_intent;
 
     public TestService() {
         helper = MainActivity.helper;
@@ -123,19 +129,19 @@ public class TestService extends Service {
                 for(int i=0; i<3 && word.length() > 0; ++i) {
 //                    cursor1 = db.query("user_dic", null, null, null, null, null, null, null);
 //                    cursor2 = db.query("dictionary", null, null, null, null, null, null, null);
-                    cursor1 = db.query(Queries.getUserRecTableName(userID), null, "word=?", new String[] {word}, null, null, null, null);
+                    cursor1 = db.query("user_dic", null, "word=?", new String[] {word}, null, null, null, null);
                     cursor2 = db.query("dictionary", null, "word=?", new String[] {word}, null, null, null, null);
                     if(cursor1.moveToFirst()) {
                         ContentValues record = new ContentValues();
                         record.put("word", cursor1.getString(0));
-                        db.insert(Queries.getUserRecTableName(userID), null, record);
+                        db.insert("user_rec", null, record);
                         MainActivity.viewPager.setAdapter(MainActivity.viewPagerAdapter);
                         makeAlarm();
                         break;
                     }else if(cursor2.moveToFirst()) {
                         ContentValues record = new ContentValues();
                         record.put("word", cursor2.getString(0));
-                        db.insert(Queries.getUserRecTableName(userID), null, record);
+                        db.insert("user_rec", null, record);
                         makeAlarm();
                         break;
                     }else {
@@ -160,7 +166,23 @@ public class TestService extends Service {
                 Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 vibrator.vibrate(1500);
             } if(notific_isChecked) {
-                // TODO : 여기 채워라..
+                notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                noti_intent = new Intent(this, MainActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, noti_intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                android.app.Notification.Builder builder = new android.app.Notification.Builder(this);
+                builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.swearing));
+                builder.setSmallIcon(android.R.drawable.star_on);
+                builder.setTicker("비속어 사용 알림");
+                builder.setContentTitle("언어의 품격");
+                builder.setContentText("비속어를 사용하셨습니다.");
+                builder.setWhen(System.currentTimeMillis());
+                builder.setDefaults(android.app.Notification.DEFAULT_SOUND | android.app.Notification.DEFAULT_VIBRATE);
+                builder.setContentIntent(pendingIntent);
+                builder.setAutoCancel(true);
+                builder.setNumber(999);
+
+                builder.setPriority(Notification.PRIORITY_MAX);
+                notificationManager.notify(0, builder.build());
             }
         }
     }

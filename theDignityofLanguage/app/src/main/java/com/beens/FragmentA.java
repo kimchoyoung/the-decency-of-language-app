@@ -2,7 +2,10 @@ package com.beens;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.icu.text.SimpleDateFormat;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +22,7 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class FragmentA extends Fragment {
@@ -35,8 +39,32 @@ public class FragmentA extends Fragment {
         return view;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void setBarData() {
-        Cursor c = MainActivity.sqLiteDatabase.query(Queries.getUserRecTableName(userID), new String[]{"word", "count(time)"}, null, null, "word", null, "count(time)", null);
+        long DAY_IN_MS = 1000 * 60 * 60 * 24;
+        String pattern = "yyyy-MM-dd HH:mm:ss";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        String datedaysAgo;
+
+        switch (MainActivity.spinner.getSelectedItemPosition()) {
+            case 0:
+                datedaysAgo = simpleDateFormat.format(new Date(System.currentTimeMillis() - (7 * DAY_IN_MS)));
+                break;
+            case 1:
+                datedaysAgo = simpleDateFormat.format(new Date(System.currentTimeMillis() - (30 * DAY_IN_MS)));
+                break;
+            default:
+                datedaysAgo = simpleDateFormat.format(new Date(System.currentTimeMillis() - (90 * DAY_IN_MS)));
+                break;
+        }
+        String dateCurrent = simpleDateFormat.format(new Date(System.currentTimeMillis()));
+
+        datedaysAgo.substring(11);
+        datedaysAgo = datedaysAgo + "00:00:00";
+        dateCurrent.substring(11);
+        dateCurrent = dateCurrent + "00:00:00";
+
+        Cursor c = MainActivity.sqLiteDatabase.query("user_rec", new String[]{"word", "count(time)"}, "time >= ? AND time <= ?", new String[] {datedaysAgo, dateCurrent}, "word", null, "count(time)", null);
         List<BarEntry> entries = new ArrayList<>();
 
         if (c.moveToFirst()) {
