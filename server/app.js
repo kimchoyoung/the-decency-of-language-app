@@ -90,17 +90,24 @@ app.use('/id_check',(req,res,next)=>{
     });
 });
 
+var DBversion='2'
+
 app.use('/update',(req,res,next)=>{
- //   query=`select * from dictionary`
-    query=`select * from dictionary`
-    connection.query(query, (err,rows,fields)=>{
-        if(err) throw err;
-
-        let dictionary=JSON.stringify(rows);
-        res.send(dictionary);
-    })
+    let version = req.query.version
+    console.log(version);
+    if(DBversion!=version)
+        {
+            query =`select * from dictionary;`
+            connection.query(query, (err, rows, fields)=>{
+                console.log(rows)
+                words=JSON.stringify(rows)
+                res.send(words)
+                console.log(words)
+            })
+        }
+        else
+            res.send('False')
 })
-
 
 /*
 app.use((req,res,next)=>{
